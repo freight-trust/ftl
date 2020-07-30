@@ -1,0 +1,30 @@
+{
+  "name": "@kui-shell/plugin-kubeui-client",
+  "version": "1.0.1",
+  "description": "Kui plugin that offers client defintion",
+  "license": "Apache-2.0",
+  "author": "Mengting Yan",
+  "main": "dist/index.js",
+  "module": "mdist/index.js",
+  "dependencies": {
+    "@kui-shell/plugin-client-common": "^7.0.39",
+    "@kui-shell/plugin-client-default": "^7.0.39",
+    "@kui-shell/plugin-kubeui": "*",
+    "@kui-shell/plugin-view-utilization": "*",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0"
+  },
+  "homepage": "https://github.com/IBM/kui#readme",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/IBM/kui/issues/new"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IBM/kui.git"
+  },
+  "keywords": [
+    "kui",
+    "plugin"
+  ]
+}

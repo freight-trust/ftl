@@ -1,0 +1,116 @@
+{
+  "name": "plugin-kubectl-boilerplate",
+  "version": "0.0.0",
+  "description": "",
+  "main": "node_modules/@kui-shell/core/dist/main/main.js",
+  "scripts": {
+    "build:electron:mac": "PLATFORM=mac kui-build-electron",
+    "build:electron:linux": "PLATFORM=linux kui-build-electron",
+    "build:electron:win32": "PLATFORM=win32 kui-build-electron",
+    "build:electron:all": "kui-build-electron",
+    "build:krew": "npm run -s build:electron:all && ./bin/amend-dist-for-krew.sh",
+    "compile:cjs": "kui-compile",
+    "compile:es6": "kui-compile tsconfig-es6.json",
+    "compile": "npm run compile:cjs && npm run compile:es6",
+    "watch:source": "tsc --build tsconfig-es6.json --watch",
+    "_watch": "CSP_EXTRA_ALLOWED_HOSTS=\"https://raw.githubusercontent.com\" kui-watch-webpack",
+    "watch:webpack": "npm run pty:nodejs && (npm run proxy &) && npm run _watch",
+    "watch:electron": "npm run pty:electron && TARGET=electron-renderer npm run _watch",
+    "watch": "npm run kill; npm run compile && concurrently -n EJS,ES6,WEBPACK --kill-others 'tsc --build tsconfig.json --watch' 'npm run watch:source' 'npm run watch:electron'",
+    "kill": "kill $(lsof -t -i:908${PORT_OFFSET-0}) > /dev/null 2> /dev/null || true",
+    "proxy": "if [ -z \"$TRAVIS_JOB_ID\" ]; then npm run -s pty:nodejs; fi; kui-run-proxy",
+    "pty:rebuild": "kui-pty-rebuild",
+    "pty:electron": "npm run pty:rebuild electron",
+    "pty:nodejs": "npm run pty:rebuild node",
+    "test:electron": "npm run kill; npm run watch:electron && KUI=$(echo \"$(pwd)/bin/kubectl-kui\") kui-test",
+    "test:webpack": "npm run kill; npm run watch:webpack && KUI_USE_PROXY=true MOCHA_RUN_TARGET=webpack WEBPACK_CLIENT_URL=http://localhost:9080 kui-test",
+    "test": "npm run -s test:electron",
+    "lint": "eslint '**/*.{js,ts}'",
+    "format": "prettier --write '**/*.{css,html,js,json,md,ts}'",
+    "postinstall": "npm run -s compile && npm run pty:electron",
+    "update": "ncu -u -x @types/yargs-parser,husky,electron,spectron,@types/webdriverio && for i in plugins/*; do (cd $i && ncu -u -x electron,spectron,@types/webdriverio && rm -rf node_modules); done && rm -rf node_modules/ package-lock.json  && npm install",
+    "open": "electron . shell",
+    "start:web": "npm run kill; npm run watch:webpack && open http://localhost:908${PORT_OFFSET-0}",
+    "start": "npm run kill; npm run watch:electron && npm run open"
+  },
+  "engines": {
+    "node": ">=8.15.0",
+    "npm": ">=6.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kui-shell/plugin-kubectl-boilerplate.git"
+  },
+  "keywords": [
+    "kubernetes",
+    "kubectl",
+    "cli",
+    "ui",
+    "kui"
+  ],
+  "author": "@starpit",
+  "contributors": [
+    "Mengting Yan"
+  ],
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@kui-shell/builder": "7.0.39",
+    "@kui-shell/core": "7.0.39",
+    "@kui-shell/plugin-proxy-support": "7.0.39",
+    "@kui-shell/proxy": "7.0.39",
+    "@kui-shell/test": "7.0.39",
+    "@kui-shell/webpack": "7.0.39",
+    "@types/mocha": "7.0.2",
+    "@types/node": "13.9.0",
+    "@types/uuid": "7.0.0",
+    "@types/webdriverio": "4.13.3",
+    "@types/react": "16.9.23",
+    "@types/react-dom": "16.9.5",
+    "@types/carbon-components-react": "7.6.15",
+    "@typescript-eslint/eslint-plugin": "2.23.0",
+    "@typescript-eslint/parser": "2.23.0",
+    "electron": "6.1.5",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.0",
+    "eslint-config-standard": "14.1.0",
+    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-node": "11.0.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-standard": "4.0.1",
+    "husky": "4.0.1",
+    "lint-staged": "10.0.8",
+    "mocha": "7.1.0",
+    "prettier": "1.19.1",
+    "spectron": "8.0.0",
+    "typescript": "3.8.3"
+  },
+  "dependencies": {
+    "@kui-shell/client": "file:plugins/plugin-kubeui-client",
+    "@kui-shell/plugin-sample": "file:plugins/plugin-sample",
+    "@kui-shell/plugin-bash-like": "7.0.39",
+    "@kui-shell/plugin-carbon-themes": "7.0.39",
+    "@kui-shell/plugin-core-support": "7.0.39",
+    "@kui-shell/plugin-core-themes": "7.0.39",
+    "@kui-shell/plugin-editor": "7.0.39",
+    "@kui-shell/plugin-kubeui": "2.1.0",
+    "@kui-shell/plugin-helmui": "2.1.0",
+    "@kui-shell/plugin-logui": "2.1.0",
+    "@kui-shell/plugin-openshift": "2.1.0",
+    "@kui-shell/plugin-view-utilization": "2.1.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{css,html,js,json,md,ts}": [
+      "prettier --write",
+      "git add"
+    ],
+    "**/*.{js,ts}": [
+      "eslint --fix",
+      "git add"
+    ]
+  }
+}
